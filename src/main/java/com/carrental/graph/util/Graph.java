@@ -20,6 +20,7 @@ public class Graph {
         adj.get(u).add(v);
     }
 
+    // --- Existing methods ---
     public List<Integer> getAdj(int v) {
         return adj.getOrDefault(v, Collections.emptyList());
     }
@@ -50,6 +51,24 @@ public class Graph {
         int c = 0;
         for (List<Integer> list : adj.values()) c += list.size();
         return c;
+    }
+
+
+    /** Returns the number of vertices in the graph. */
+    public int getVerticesCount() {
+        return adj.size();
+    }
+
+    /** Returns adjacency list of given vertex (alias for getAdj). */
+    public List<Integer> getAdjacencyList(int v) {
+        return getAdj(v);
+    }
+
+    /** Returns all vertices as a sorted list (useful for deterministic iteration). */
+    public List<Integer> getAllVertices() {
+        List<Integer> list = new ArrayList<>(adj.keySet());
+        Collections.sort(list);
+        return list;
     }
 
     @Override
