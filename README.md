@@ -24,7 +24,7 @@ Algorithms used:
 
 ## 3. Package Structure
 ```
-project-root/
+DAA_4/
 ├── README.md
 ├── pom.xml
 ├── data/
@@ -73,3 +73,55 @@ mvn exec:java -Dexec.mainClass="com.carrental.graph.Main" -Dexec.args="data/smal
 
 # Enable metrics output
 mvn exec:java -Dexec.mainClass="com.carrental.graph.Main" -Dexec.args="--metrics"
+```
+---
+
+## 5. Dataset Summary
+
+---
+
+## 6. Results Summary
+- 6.1 SCC + Condensation + Topological Sort
+
+- 6.2 DAG Shortest & Longest Paths
+
+---
+
+
+## 7. Analysis
+- SCC (Kosaraju): Highest cost on dense graphs (two DFS passes).
+- Tological sort (Kahn): Linear performance, ideal for acyclic structures.
+- Shortest/Longest path (DP): Efficient on DAGs; scales linearly.
+- Performance bottleneck: Dense graphs with many SCCs.
+- Structural effect: More edges → longer DFS phase, but DAG phase remains fast.
+
+---
+
+## 8. Conclusions
+- SCC compression simplifies cyclic dependencies.
+- Biological ordering ensures valid scheduling sequence.
+- Shortest path → earliest task completion.
+- Longest path → critical path analysis.
+- For acyclic datasets, DP-based shortest/longest path gives best runtime.
+- Dense cyclic graphs require SCC preprocessing.
+
+---
+
+## 9. Metrics and Instrumentation
+Implemented via TimerMetrics (in com.carrental.graph.util):
+•	Timing: System.nanoTime()
+•	Counters:
+•	SCC → DFS visits, edges processed
+•	Topological sort → queue pushes/pops
+•	DAG shortest path → relaxations
+
+---
+## 10. Testing
+
+JUnit tests in src/test/java verify:
+•	SCC grouping correctness
+•	Valid topological ordering
+•	Correct shortest and longest path reconstruction
+•	Edge cases: single-node graph, all-cyclic graph, empty graph
+
+## 11. References

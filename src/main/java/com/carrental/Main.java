@@ -2,6 +2,7 @@ package com.carrental;
 
 import com.carrental.graph.scc.*;
 import com.carrental.graph.topo.*;
+import com.carrental.graph.dagsp.*;
 import com.carrental.graph.util.*;
 
 import java.util.*;
@@ -27,17 +28,12 @@ public class Main {
             System.out.println("Loaded graph: " + g.getVerticesCount() + " vertices, "
                     + g.edgeCount() + " edges (" + loadTimer.getTime() + " ns)");
 
-            // === STEP 2: Find SCCs ===
-            TimerMetrics sccTimer = new TimerMetrics();
-            sccTimer.start();
+            // === STEP 2: Find SCCs (Kosaraju with metrics) ===
             Kosaraju kosaraju = new Kosaraju();
             List<Component> sccs = kosaraju.findSCCs(g);
-            sccTimer.stop();
-            System.out.println("Detected " + sccs.size() + " strongly connected components "
-                    + "(" + sccTimer.getTime() + " ns)");
-            for (Component c : sccs) {
-                System.out.println("  " + c);
-            }
+            System.out.println("Detected " + sccs.size() + " SCCs");
+            for (Component c : sccs) System.out.println("  " + c);
+            System.out.print("SCC metrics: "); kosaraju.printMetrics();
 
             // === STEP 3: Build Condensation Graph ===
             TimerMetrics condTimer = new TimerMetrics();
@@ -45,29 +41,61 @@ public class Main {
             CondensationGraphBuilder builder = new CondensationGraphBuilder();
             Graph dag = builder.buildCondensation(g, sccs);
             condTimer.stop();
-            System.out.println("Condensation DAG built. Vertices: " + dag.getVerticesCount() +
-                    ", Edges: " + dag.edgeCount() + " (" + condTimer.getTime() + " ns)");
+            System.out.println("Condensation DAG built: " + dag.getVerticesCount() + " vertices, "
+                    + dag.edgeCount() + " edges (" + condTimer.getTime() + " ns)");
 
-            // === STEP 4: Topological Sort ===
-            TimerMetrics topoTimer = new TimerMetrics();
-            topoTimer.start();
-            KahnAlgorithm topo = new KahnAlgorithm();
-            List<Integer> topoOrder = topo.sort(dag);
-            topoTimer.stop();
-            System.out.println("Topological order: " + topoOrder +
-                    " (" + topoTimer.getTime() + " ns)");
+            // === STEP 4: Topological Sort Comparison ===
 
-            // === STEP 5: Collect Metrics ===
-            MetricsImpl metrics = new MetricsImpl();
-            metrics.add("Load Graph", loadTimer.getTime());
-            metrics.add("Find SCCs", sccTimer.getTime());
-            metrics.add("Build Condensation", condTimer.getTime());
-            metrics.add("Topological Sort", topoTimer.getTime());
-            metrics.print();
+            // --- Kahn’s Algorithm ---
+            KahnAlgorithm kahn = new KahnAlgorithm();
+            List<Integer> kahnOrder = kahn.sort(dag);
+            System.out.println("Kahn's topological order: " + kahnOrder);
+            System.out.print("Kahn metrics: "); kahn.printMetrics();
 
-            System.out.println("=== Dataset " + name + " processed successfully ===");
+            // --- DFS-based Topological Sort ---
+            TopologicalSorter dfs = new TopologicalSorter();
+            List<Integer> dfsOrder = dfs.sort(dag);
+            System.out.println("DFS-based topological order: " + dfsOrder);
+            System.out.print("DFS metrics: "); dfs.printMetrics();
+
+            // Optional sanity check
+            if (kahnOrder.size() != dfsOrder.size()) {
+                System.out.println("⚠️ Warning: Kahn and DFS returned different sizes!");
+            }
+
+            // === STEP 5: DAG Shortest Paths ===
+            DAGShortestPath dagSP = new DAGShortestPath();
+            Map<String, Integer> weights = new HashMap<>();
+            for (int u : dag.getVertices())
+                for (int v : dag.getAdj(u))
+                    weights.put(u + "-" + v, 1); // simple equal weights
+
+            PathResult shortest = dagSP.shortestPaths(dag, kahnOrder.get(0), weights);
+            System.out.println("Shortest paths from " + kahnOrder.get(0));
+            System.out.print("DAG-SP metrics: "); dagSP.printMetrics();
+
+            // === STEP 6: DAG Longest Paths ===
+            DAGLongestPath dagLP = new DAGLongestPath();
+            PathResult longest = dagLP.longestPaths(dag, kahnOrder.get(0), weights);
+            System.out.println("Longest paths from " + kahnOrder.get(0));
+            System.out.print("DAG-LP metrics: "); dagLP.printMetrics();
+
+            // === STEP 7: Summary Metrics Table ===
+            MetricsImpl summary = new MetricsImpl();
+            summary.add("Load Graph", loadTimer.getTime());
+            summary.add("Condensation DAG Build", condTimer.getTime());
+            summary.add("SCC Kosaraju Time", kosaraju.getMetrics().getTime());
+            summary.add("KahnAlgorithm Time", kahn.getMetrics().getTime());
+            summary.add("DFS TopologicalSorter Time", dfs.getMetrics().getTime());
+            summary.add("DAG Shortest Path Time", dagSP.getMetrics().getTime());
+            summary.add("DAG Longest Path Time", dagLP.getMetrics().getTime());
+
+            System.out.println("\n=== Summary Metrics for dataset " + name + " ===");
+            summary.print();
+
+            System.out.println("=== Dataset " + name + " processed successfully ===\n");
         }
 
-        System.out.println("\n=== PIPELINE COMPLETE FOR ALL DATASETS ===");
+        System.out.println("=== PIPELINE COMPLETE FOR ALL DATASETS ===");
     }
 }
