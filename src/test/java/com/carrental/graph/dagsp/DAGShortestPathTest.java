@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class DAGLongestPathTest {
+class DAGShortestPathTest {
 
     @Test
-    void testLongestPathSimple() {
+    void testShortestPathSimple() {
         Graph g = new Graph();
         g.addEdge(0, 1);
         g.addEdge(0, 2);
@@ -18,16 +18,16 @@ class DAGLongestPathTest {
         Map<String, Integer> weights = new HashMap<>();
         weights.put("0-1", 2);
         weights.put("0-2", 1);
-        weights.put("1-3", 3);
-        weights.put("2-3", 4);
+        weights.put("1-3", 2);
+        weights.put("2-3", 3);
 
-        DAGLongestPath algo = new DAGLongestPath();
-        PathResult result = algo.longestPaths(g, 0, weights);
+        DAGShortestPath algo = new DAGShortestPath();
+        PathResult result = algo.shortestPaths(g, 0, weights);
 
         assertEquals(0, result.getDistance().get(0));
         assertEquals(2, result.getDistance().get(1));
         assertEquals(1, result.getDistance().get(2));
-        assertEquals(5, result.getDistance().get(3)); // via 0→1→3
+        assertEquals(4, result.getDistance().get(3));
 
         List<Integer> path = result.reconstructPath(0, 3);
         List<List<Integer>> validPaths = List.of(
@@ -38,17 +38,17 @@ class DAGLongestPathTest {
     }
 
     @Test
-    void testDisconnectedGraph() {
+    void testUnreachableNode() {
         Graph g = new Graph();
         g.addEdge(0, 1);
-        g.addVertex(2);
+        g.addVertex(2); // isolated
 
-        Map<String, Integer> weights = Map.of("0-1", 10);
+        Map<String, Integer> weights = Map.of("0-1", 5);
 
-        DAGLongestPath algo = new DAGLongestPath();
-        PathResult result = algo.longestPaths(g, 0, weights);
+        DAGShortestPath algo = new DAGShortestPath();
+        PathResult result = algo.shortestPaths(g, 0, weights);
 
-        assertEquals(Integer.MIN_VALUE, result.getDistance().get(2));
+        assertEquals(Integer.MAX_VALUE, result.getDistance().get(2));
         assertTrue(result.reconstructPath(0, 2).isEmpty());
     }
 }
