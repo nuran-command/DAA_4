@@ -5,6 +5,9 @@ import com.carrental.graph.topo.*;
 import com.carrental.graph.dagsp.*;
 import com.carrental.graph.util.*;
 
+import java.nio.file.*;
+import org.json.*;
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
@@ -18,6 +21,26 @@ public class Main {
         for (String name : datasets) {
             String filePath = "data/" + name + ".json";
             System.out.println("\n=== Processing dataset: " + name + " ===");
+            // === DATASET SUMMARY ===
+            try {
+                String content = Files.readString(Path.of(filePath));
+                JSONObject root = new JSONObject(content);
+                JSONArray datasetsArray = root.getJSONArray("datasets");
+                System.out.println("Dataset file: " + filePath);
+                System.out.println("Contains " + datasetsArray.length() + " graphs:");
+
+                for (int i = 0; i < datasetsArray.length(); i++) {
+                    JSONObject d = datasetsArray.getJSONObject(i);
+                    String dname = d.getString("name");
+                    int n = d.getInt("n");
+                    int ecount = d.getJSONArray("edges").length();
+                    boolean directed = d.getBoolean("directed");
+                    System.out.printf("  • %s — %d vertices, %d edges, directed=%s%n",
+                            dname, n, ecount, directed);
+                }
+            } catch (IOException e) {
+                System.out.println("Failed to read dataset summary for " + name);
+            }
 
             // === STEP 1: Load Graph ===
             TimerMetrics loadTimer = new TimerMetrics();
