@@ -1,58 +1,73 @@
 package com.carrental;
 
-import com.carrental.graph.util.Graph;
 import com.carrental.graph.scc.*;
 import com.carrental.graph.topo.*;
-import com.carrental.graph.dagsp.*;
+import com.carrental.graph.util.*;
+
 import java.util.*;
 
 public class Main {
+
     public static void main(String[] args) {
+        System.out.println("=== SMART CITY GRAPH ANALYSIS PIPELINE ===");
 
-        // === 1. Build base graph ===
-        Graph g = new Graph();
-        g.addEdge(0, 1);
-        g.addEdge(1, 2);
-        g.addEdge(2, 0);
-        g.addEdge(2, 3);
-        g.addEdge(3, 4);
+        // Datasets: small, medium, large
+        String[] datasets = {"small", "medium", "large"};
 
-        System.out.println("Original Graph:");
-        System.out.println(g);
+        for (String name : datasets) {
+            String filePath = "data/" + name + ".json";
+            System.out.println("\n=== Processing dataset: " + name + " ===");
 
-        // === 2. Find Strongly Connected Components (Kosaraju) ===
-        Kosaraju kosaraju = new Kosaraju();
-        List<Component> sccs = kosaraju.findSCCs(g);
-        System.out.println("Strongly Connected Components:");
-        for (Component c : sccs) System.out.println(c);
+            // === STEP 1: Load Graph ===
+            TimerMetrics loadTimer = new TimerMetrics();
+            loadTimer.start();
+            GraphLoader.LoadedGraph loaded = GraphLoader.loadSingleGraph(filePath, name + "1");
+            Graph g = loaded.graph;
+            loadTimer.stop();
+            System.out.println("Loaded graph: " + g.getVerticesCount() + " vertices, "
+                    + g.edgeCount() + " edges (" + loadTimer.getTime() + " ns)");
 
-        // === 3. Build Condensation Graph (SCC -> DAG) ===
-        CondensationGraphBuilder builder = new CondensationGraphBuilder();
-        Graph dag = builder.buildCondensation(g, sccs);
-        System.out.println("\nCondensation DAG:");
-        System.out.println(dag);
-
-        // === 4. Topological Sort ===
-        TopologicalSorter topo = new TopologicalSorter();
-        List<Integer> topoOrder = topo.sort(dag);
-        System.out.println("Topological Order: " + topoOrder);
-
-        // === 5. Assign weights and run DAG shortest/longest path ===
-        Map<String, Integer> weights = new HashMap<>();
-        for (int u : dag.getVertices()) {
-            for (int v : dag.getAdj(u)) {
-                weights.put(u + "-" + v, 1); // default weight 1
+            // === STEP 2: Find SCCs ===
+            TimerMetrics sccTimer = new TimerMetrics();
+            sccTimer.start();
+            Kosaraju kosaraju = new Kosaraju();
+            List<Component> sccs = kosaraju.findSCCs(g);
+            sccTimer.stop();
+            System.out.println("Detected " + sccs.size() + " strongly connected components "
+                    + "(" + sccTimer.getTime() + " ns)");
+            for (Component c : sccs) {
+                System.out.println("  " + c);
             }
+
+            // === STEP 3: Build Condensation Graph ===
+            TimerMetrics condTimer = new TimerMetrics();
+            condTimer.start();
+            CondensationGraphBuilder builder = new CondensationGraphBuilder();
+            Graph dag = builder.buildCondensation(g, sccs);
+            condTimer.stop();
+            System.out.println("Condensation DAG built. Vertices: " + dag.getVerticesCount() +
+                    ", Edges: " + dag.edgeCount() + " (" + condTimer.getTime() + " ns)");
+
+            // === STEP 4: Topological Sort ===
+            TimerMetrics topoTimer = new TimerMetrics();
+            topoTimer.start();
+            KahnAlgorithm topo = new KahnAlgorithm();
+            List<Integer> topoOrder = topo.sort(dag);
+            topoTimer.stop();
+            System.out.println("Topological order: " + topoOrder +
+                    " (" + topoTimer.getTime() + " ns)");
+
+            // === STEP 5: Collect Metrics ===
+            MetricsImpl metrics = new MetricsImpl();
+            metrics.add("Load Graph", loadTimer.getTime());
+            metrics.add("Find SCCs", sccTimer.getTime());
+            metrics.add("Build Condensation", condTimer.getTime());
+            metrics.add("Topological Sort", topoTimer.getTime());
+            metrics.print();
+
+            System.out.println("=== Dataset " + name + " processed successfully ===");
         }
 
-        int source = topoOrder.get(0);
-
-        DAGShortestPath shortest = new DAGShortestPath();
-        PathResult spResult = shortest.shortestPaths(dag, source, weights);
-        System.out.println("\nShortest distances from " + source + ": " + spResult.getDistance());
-
-        DAGLongestPath longest = new DAGLongestPath();
-        PathResult lpResult = longest.longestPaths(dag, source, weights);
-        System.out.println("Longest distances from " + source + ": " + lpResult.getDistance());
+        System.out.println("\n=== PIPELINE COMPLETE FOR ALL DATASETS ===");
     }
 }
