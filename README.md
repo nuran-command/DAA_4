@@ -124,12 +124,12 @@ mvn exec:java -Dexec.mainClass="com.carrental.graph.Main" -Dexec.args="--metrics
 
 ### Small Dataset — Detailed Metrics(json)
 
-| Graph   | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
-|----------|-----------|--------|------------|---------------------|----------------------|--------------------------|------------------------|------------|----------------|-----------------|
-| small1 | 6 | 6 | 4 | 563,291 | 72,708 | 361,667 | 496,041 | [0 → 1] | 2 | 2 | 1.0 |
-| small2 | 7 | 6 | 5 | 133,500 | 42,208 | 83,625 | 67,125 | [4] | 0 | 1 | 0.0 |
-| small3 | 8 | 6 | 8 | 90,708 | 28,958 | 67,125 | 94,750 | [0 → 1] | 1 | 2 | 0.5 |
-
+| Graph  | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
+|--------|----------:|------:|----------:|-------------------:|---------------------:|------------------------:|-----------------------:|----------:|--------------:|----------------:|-------------:|
+| small1 |         6 |     6 |         4 |           563,291  |              72,708  |                 361,667 |                496,041 | 0 → 1     |             2 |               2 |          1.0 |
+| small2 |         7 |     6 |         5 |           133,500  |              42,208  |                  83,625 |                 67,125 | 4         |             0 |               1 |          0.0 |
+| small3 |         8 |     6 |         8 |            90,708  |              28,958  |                  67,125 |                 94,750 | 0 → 1     |             1 |               2 |          0.5 |
+  
   **Notes:**
 - SCC detection time is higher in `small1` due to more interconnected edges.
 - DAG-based shortest and longest paths complete under **0.5 ms**, confirming efficiency.
@@ -159,10 +159,10 @@ mvn exec:java -Dexec.mainClass="com.carrental.graph.Main" -Dexec.args="--metrics
 ###  Medium Dataset — Detailed Metrics(json)
 
 | Graph   | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
-|----------|-----------|--------|------------|---------------------|----------------------|--------------------------|------------------------|------------|----------------|-----------------|
-| medium1 | 12        | 10     | 10         | 129,417             | 33,708               | 86,250                   | 55,959                 | [0 → 1]    | 3              | 2               | 1.5           |
-| medium2 | 15        | 13     | 12         | 122,500             | 28,792               | 54,417                   | 50,917                 | [7]        | 0              | 1               | 0.0           |
-| medium3 | 18        | 14     | 16         | 181,959             | 46,667               | 84,584                   | 60,958                 | [4]        | 0              | 1               | 0.0           |
+|----------|----------:|------:|----------:|-------------------:|--------------------:|------------------------:|-----------------------:|-----------:|---------------:|----------------:|-------------:|
+| medium1 |        12 |    10 |        10 |           129,417  |             33,708  |                 86,250  |                55,959  | 0 → 1     |             3  |               2 |          1.5 |
+| medium2 |        15 |    13 |        12 |           122,500  |             28,792  |                 54,417  |                50,917  | 7         |             0  |               1 |          0.0 |
+| medium3 |        18 |    14 |        16 |           181,959  |             46,667  |                 84,584  |                60,958  | 4         |             0  |               1 |          0.0 |
 
   **Notes:**
 - SCC counts grow with graph complexity, affecting initial Kosaraju runtime.
@@ -196,10 +196,10 @@ mvn exec:java -Dexec.mainClass="com.carrental.graph.Main" -Dexec.args="--metrics
 ###  Large Dataset — Detailed Metrics(json)
 
 | Graph   | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
-|----------|-----------|--------|------------|---------------------|----------------------|--------------------------|------------------------|------------|----------------|-----------------|
-| large1  | 25        | 19     | 20         | 192,291             | 46,833               | 82,792                   | 108,666                | [0 → 1]    | 3              | 2               | 1.5           |
-| large2  | 35        | 23     | 32         | 262,875             | 78,917               | 135,209                  | 105,750                | [10]       | 0              | 1               | 0.0           |
-| large3  | 45        | 26     | 42         | 284,333             | 80,959               | 162,958                  | 142,667                | [4 → 5]    | 4              | 2               | 2.0           |
+|----------|----------:|------:|----------:|-------------------:|--------------------:|------------------------:|-----------------------:|-----------:|---------------:|----------------:|-------------:|
+| large1  |        25 |    19 |        20 |           192,291  |             46,833  |                 82,792  |               108,666  | 0 → 1     |             3  |               2 |          1.5 |
+| large2  |        35 |    23 |        32 |           262,875  |             78,917  |                135,209  |               105,750  | 10        |             0  |               1 |          0.0 |
+| large3  |        45 |    26 |        42 |           284,333  |             80,959  |                162,958  |               142,667  | 4 → 5     |             4  |               2 |          2.0 |
 
   **Notes:**
 - SCC count increases sharply with graph size, indicating higher cyclic density.
