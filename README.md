@@ -324,21 +324,112 @@ The DAG structure allows these algorithms to outperform traditional Dijkstra/Bel
 ---
 
 ## 9. Metrics and Instrumentation
-Implemented via TimerMetrics (in com.carrental.graph.util):
-•	Timing: System.nanoTime()
-•	Counters:
-•	SCC → DFS visits, edges processed
-•	Topological sort → queue pushes/pops
-•	DAG shortest path → relaxations
 
+Performance evaluation is implemented through the **`TimerMetrics`** class  
+(`com.carrental.graph.util`), which provides fine-grained **runtime** and **operation** tracking  
+across all graph algorithms.
+
+###  Features
+
+- **High-precision timing:**  
+  Uses `System.nanoTime()` to measure execution time for each algorithm phase  
+  (SCC detection, topological sorting, shortest/longest path, etc.).
+
+- **Operation counters:**  
+  Tracks algorithm-specific operations to evaluate computational cost:
+    - **SCC (Kosaraju):** Counts DFS visits and edges processed during both passes.
+    - **Topological Sorting (Kahn / DFS):** Records queue insertions, removals, and stack pushes/pops.
+    - **DAG Shortest/Longest Path:** Tracks edge relaxations and distance updates.
+
+- **Unified Metrics Interface:**  
+  All algorithms implement the `Metrics` interface for consistent metric collection  
+  and JSON export (e.g., `"Kosaraju_SCC"`, `"Topological_Sort"`, `"DAG_Shortest"`).
+
+- **Structured Output:**  
+  Metrics are automatically saved per dataset in the `/output` directory:
+    - `results_small.json`
+    - `results_medium.json`
+    - `results_large.json`
+
+  Each file includes execution times, operation counts, and algorithm summaries,  
+  enabling cross-scale performance comparison.
 ---
 ## 10. Testing
 
-JUnit tests in src/test/java verify:
-•	SCC grouping correctness
-•	Valid topological ordering
-•	Correct shortest and longest path reconstruction
-•	Edge cases: single-node graph, all-cyclic graph, empty graph
+Comprehensive **JUnit 5** test suites are implemented under  
+`src/test/java/com/carrental/graph/` to validate algorithm correctness, robustness, and performance.  
+Each algorithm has dedicated test classes covering both **normal** and **edge-case** scenarios.
+
+###  Overview
+
+| Package | Test Class | Purpose |
+|----------|-------------|----------|
+| `com.carrental.graph.scc` | **KosarajuTest** | Verifies detection of strongly connected components (SCCs) and handling of disconnected graphs. |
+| | **SCCFinderTest** | Confirms SCC grouping correctness for cyclic and disjoint graphs. |
+| | **CondensationGraphBuilderTest** | Tests condensation graph creation, ensuring acyclicity and correct SCC compression. |
+| `com.carrental.graph.topo` | **KahnAlgorithmTest** | Checks correct topological ordering and cycle detection. |
+| | **TopologicalSorterTest** | Verifies DFS-based topological sorting, including disconnected DAGs. |
+| | **TopoPerformanceTest** | Compares runtime metrics between Kahn and DFS-based topological sorts using TimerMetrics. |
+| `com.carrental.graph.dagsp` | **DAGShortestPathTest** | Ensures accurate shortest path computation and unreachable-node detection. |
+| | **DAGLongestPathTest** | Validates longest path reconstruction and correct distance propagation in DAGs. |
+
+---
+
+###  Key Testing Objectives
+
+- **SCC Validation:**
+    - Detects all strongly connected components in cyclic and acyclic graphs.
+    - Confirms correct node grouping and SCC count.
+
+- **Condensation Graph Testing:**
+    - Verifies that SCC condensation produces a valid **acyclic DAG**.
+    - Ensures every SCC is represented by one vertex.
+
+- **Topological Sorting:**
+    - Confirms order validity for both Kahn’s algorithm and DFS-based sorter.
+    - Detects cycles and throws `IllegalStateException` when found.
+    - Tests both connected and disconnected DAGs.
+
+- **Shortest & Longest Path:**
+    - Checks path reconstruction and correct distance initialization.
+    - Tests disconnected and unreachable nodes.
+    - Validates optimal paths (shortest and longest) in weighted DAGs.
+
+- **Performance Metrics:**
+    - Ensures time measurement (`System.nanoTime()`) is recorded.
+    - Compares Kahn vs. DFS performance using large synthetic graphs.
+
+---
+
+###  Test Tools and Configuration
+
+- **Framework:** [JUnit 5](https://junit.org/junit5/)
+- **Assertions Used:** `assertEquals`, `assertTrue`, `assertThrows`
+- **Metrics Verification:** Integration with `TimerMetrics` ensures time and operation counters are logged.
+- **Graph Generation:** Uses synthetic graphs built dynamically via `Graph.addEdge()` and `addVertex()` for controlled test coverage.
+
+---
+
+### Example Edge Cases Covered
+
+- Empty graph (no vertices/edges)
+- Single-node graph
+- Fully cyclic graph
+- Disconnected DAG
+- Weighted DAG with unreachable nodes
+- Large chain graph (1,000+ vertices) for performance timing
+
+---
+
+### Output and Validation
+
+Each algorithm test outputs timing and metric data via `TimerMetrics`.  
+Results are automatically saved to JSON files under the `/output` directory:
+- `results_small.json`
+- `results_medium.json`
+- `results_large.json`
+
+This ensures **traceable verification** of both **correctness** and **efficiency** across datasets.
 
 ## 11. References
 
