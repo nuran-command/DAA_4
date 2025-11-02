@@ -2,26 +2,33 @@ package com.carrental.graph.util;
 
 import java.util.*;
 
+/**
+ * Tracks algorithm performance time and operation counts.
+ */
 public class TimerMetrics implements Metrics {
 
-    private final Map<String, Long> counters = new HashMap<>();
     private long startTime;
-    private long elapsedTime;
+    private long endTime;
+    private boolean running;
+    private final Map<String, Long> counters = new HashMap<>();
 
     @Override
     public void start() {
-        reset();
+        running = true;
         startTime = System.nanoTime();
     }
 
     @Override
     public void stop() {
-        elapsedTime = System.nanoTime() - startTime;
+        if (running) {
+            endTime = System.nanoTime();
+            running = false;
+        }
     }
 
     @Override
     public long getTime() {
-        return elapsedTime;
+        return endTime - startTime;
     }
 
     @Override
@@ -37,11 +44,20 @@ public class TimerMetrics implements Metrics {
     @Override
     public void reset() {
         counters.clear();
-        elapsedTime = 0;
+        startTime = 0;
+        endTime = 0;
+        running = false;
     }
 
     @Override
     public String toString() {
-        return "Time(ns)=" + elapsedTime + " Counters=" + counters;
+        StringBuilder sb = new StringBuilder("Execution time: " + getTime() + " ns");
+        if (!counters.isEmpty()) {
+            sb.append("\nOperation counts: ");
+            for (var e : counters.entrySet()) {
+                sb.append(e.getKey()).append("=").append(e.getValue()).append(" ");
+            }
+        }
+        return sb.toString();
     }
 }

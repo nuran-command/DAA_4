@@ -52,6 +52,35 @@ public class Graph {
         for (List<Integer> list : adj.values()) c += list.size();
         return c;
     }
+    /**
+     * Builds a new DAG from SCC components.
+     * Each strongly connected component (SCC) becomes a single vertex in the new graph.
+     */
+    public Graph compressSCCs(List<com.carrental.graph.scc.Component> components) {
+        Graph dag = new Graph();
+
+        // Map original vertex → component ID
+        Map<Integer, Integer> compMap = new HashMap<>();
+        for (com.carrental.graph.scc.Component comp : components) {
+            for (int v : comp.getNodes()) {
+                compMap.put(v, comp.getId());
+            }
+        }
+
+        // Build DAG edges between components
+        for (var entry : adj.entrySet()) {
+            int u = entry.getKey();
+            for (int v : entry.getValue()) {
+                int cu = compMap.get(u);
+                int cv = compMap.get(v);
+                if (cu != cv) { // only add inter-component edges
+                    dag.addEdge(cu, cv);
+                }
+            }
+        }
+
+        return dag;
+    }
 
 
     /** Returns the number of vertices in the graph. */

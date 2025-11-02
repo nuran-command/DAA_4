@@ -18,42 +18,39 @@ public class TopologicalSorter {
         this.metrics = metrics;
     }
 
-
     public List<Integer> sort(Graph graph) {
         metrics.start(); // start timing
 
-        int vertices = graph.getVerticesCount();
-        boolean[] visited = new boolean[vertices];
-        Stack<Integer> stack = new Stack<>();
+        Set<Integer> visited = new HashSet<>();
+        Deque<Integer> stack = new ArrayDeque<>();
 
-        for (int i = 0; i < vertices; i++) {
-            if (!visited[i]) {
-                dfs(graph, i, visited, stack);
+        for (int node : graph.getVertices()) {
+            if (!visited.contains(node)) {
+                dfs(graph, node, visited, stack);
             }
-        }
-
-        List<Integer> result = new ArrayList<>();
-        while (!stack.isEmpty()) {
-            result.add(stack.pop());
-            metrics.increment("Stack-pops");
         }
 
         metrics.stop(); // stop timing
+        List<Integer> result = new ArrayList<>(stack);
+        Collections.reverse(result);
         return result;
     }
 
-    private void dfs(Graph graph, int node, boolean[] visited, Stack<Integer> stack) {
-        visited[node] = true;
+    private void dfs(Graph graph, int node, Set<Integer> visited, Deque<Integer> stack) {
+        visited.add(node);
         metrics.increment("DFS-visits");
+
         for (int neighbor : graph.getAdjacencyList(node)) {
             metrics.increment("DFS-edges");
-            if (!visited[neighbor]) {
+            if (!visited.contains(neighbor)) {
                 dfs(graph, neighbor, visited, stack);
             }
         }
+
         stack.push(node);
         metrics.increment("Stack-pushes");
     }
+
     public Metrics getMetrics() {
         return this.metrics;
     }

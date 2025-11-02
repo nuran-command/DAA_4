@@ -1,0 +1,83 @@
+{
+    "graphs": [
+        {
+            "longest_summary": {
+                "average_distance": 1,
+                "best_path": [
+                    0,
+                    1
+                ],
+                "best_distance": 2,
+                "reachable_nodes": 2
+            },
+            "metrics": {
+                "Topological_Sort": "Execution time: 72708 ns\nOperation counts: Stack-pushes=4 DFS-edges=3 DFS-visits=4 ",
+                "Kosaraju_SCC": "Execution time: 563291 ns\nOperation counts: Stack-pushes=6 DFS2-edges=6 DFS2-visits=6 Stack-pops=6 DFS1-visits=6 DFS1-edges=6 ",
+                "DAG_Longest": "Execution time: 496041 ns\nOperation counts: Relaxations=1 ",
+                "DAG_Shortest": "Execution time: 361667 ns\nOperation counts: Relaxations=1 "
+            },
+            "shortest_summary": {
+                "average_distance": 1,
+                "best_path": [
+                    0,
+                    1
+                ],
+                "best_distance": 2,
+                "reachable_nodes": 2
+            },
+            "scc_count": 4,
+            "graph": "small1"
+        },
+        {
+            "longest_summary": {
+                "average_distance": 0,
+                "best_path": [4],
+                "best_distance": 0,
+                "reachable_nodes": 1
+            },
+            "metrics": {
+                "Topological_Sort": "Execution time: 42208 ns\nOperation counts: Stack-pushes=5 DFS-edges=3 DFS-visits=5 ",
+                "Kosaraju_SCC": "Execution time: 133500 ns\nOperation counts: Stack-pushes=7 DFS2-edges=6 DFS2-visits=7 Stack-pops=7 DFS1-visits=7 DFS1-edges=6 ",
+                "DAG_Longest": "Execution time: 67125 ns",
+                "DAG_Shortest": "Execution time: 83625 ns"
+            },
+            "shortest_summary": {
+                "average_distance": 0,
+                "best_path": [4],
+                "best_distance": 0,
+                "reachable_nodes": 1
+            },
+            "scc_count": 5,
+            "graph": "small2"
+        },
+        {
+            "longest_summary": {
+                "average_distance": 0.5,
+                "best_path": [
+                    0,
+                    1
+                ],
+                "best_distance": 1,
+                "reachable_nodes": 2
+            },
+            "metrics": {
+                "Topological_Sort": "Execution time: 28958 ns\nOperation counts: Stack-pushes=8 DFS-edges=6 DFS-visits=8 ",
+                "Kosaraju_SCC": "Execution time: 90708 ns\nOperation counts: Stack-pushes=8 DFS2-edges=6 DFS2-visits=8 Stack-pops=8 DFS1-visits=8 DFS1-edges=6 ",
+                "DAG_Longest": "Execution time: 94750 ns\nOperation counts: Relaxations=1 ",
+                "DAG_Shortest": "Execution time: 67125 ns\nOperation counts: Relaxations=1 "
+            },
+            "shortest_summary": {
+                "average_distance": 0.5,
+                "best_path": [
+                    0,
+                    1
+                ],
+                "best_distance": 1,
+                "reachable_nodes": 2
+            },
+            "scc_count": 8,
+            "graph": "small3"
+        }
+    ],
+    "dataset": "small"
+}

@@ -1,0 +1,12 @@
+{
+    "metrics": {
+        "DAG Longest Path Time (ns)": 76958,
+        "KahnAlgorithm Time (ns)": 64583,
+        "SCC Kosaraju Time (ns)": 186083,
+        "Condensation DAG Build (ns)": 71917,
+        "DAG Shortest Path Time (ns)": 79375,
+        "Load Graph (ns)": 908709,
+        "DFS TopologicalSorter Time (ns)": 76584
+    },
+    "dataset": "large"
+}
