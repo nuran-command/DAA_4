@@ -105,6 +105,110 @@ mvn exec:java -Dexec.mainClass="com.carrental.graph.Main" -Dexec.args="--metrics
 ---
 
 ## 6. Results Summary
+## Dataset Summary: `small.json`
+
+| Graph ID | Vertices | Edges | SCC Count | Condensed DAG (V, E) | Topo Order Len | Kosaraju Time (ns) | DAG SP Time (ns) | DAG LP Time (ns) |
+|-----------|-----------|--------|------------|----------------------|----------------|--------------------|------------------|------------------|
+| small1 | 6 | 6 | 4 | (4, 3) | 4 | 563,291 | 361,667 | 496,041 |
+| small2 | 7 | 6 | 5 | (5, 3) | 5 | 133,500 | 83,625 | 67,125 |
+| small3 | 8 | 6 | 8 | (8, 6) | 8 | 90,708 | 67,125 | 94,750 |
+
+### Summary: Small Dataset Results
+
+- The **small dataset** contained **3 graphs** with 6–8 vertices and 6 edges each.
+- **SCC detection (Kosaraju)** was efficient, averaging under **0.6 ms per graph**, producing **4–8 strongly connected components**.
+- **Condensed DAGs** ranged from **4 to 8 vertices**, maintaining low edge density.
+- **Topological ordering** consistently matched the number of condensed vertices, confirming valid DAG structures.
+- **Shortest and longest path computations** were completed in under **0.5 ms**, showing high efficiency on small-scale inputs.
+- Overall, the pipeline demonstrated stable performance and correctness across multiple small graphs.
+
+### Small Dataset — Detailed Metrics(json)
+
+| Graph   | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
+|----------|-----------|--------|------------|---------------------|----------------------|--------------------------|------------------------|------------|----------------|-----------------|
+| small1 | 6 | 6 | 4 | 563,291 | 72,708 | 361,667 | 496,041 | [0 → 1] | 2 | 2 | 1.0 |
+| small2 | 7 | 6 | 5 | 133,500 | 42,208 | 83,625 | 67,125 | [4] | 0 | 1 | 0.0 |
+| small3 | 8 | 6 | 8 | 90,708 | 28,958 | 67,125 | 94,750 | [0 → 1] | 1 | 2 | 0.5 |
+
+  **Notes:**
+- SCC detection time is higher in `small1` due to more interconnected edges.
+- DAG-based shortest and longest paths complete under **0.5 ms**, confirming efficiency.
+- Topological sorting remains consistent across small datasets.
+- Best paths confirm limited connectivity, typical of small sparse graphs.
+
+---
+
+### Medium Dataset Results
+
+| Graph ID | Vertices | Edges | SCC Count | SCC Time (ns) | Condensed Vertices | Condensed Edges | Topo Sort Len | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) |
+|-----------|-----------|--------|-------------|----------------|--------------------|-----------------|----------------|----------------------|-------------------------|-------------------------|
+| medium1   | 12        | 10     | 10          | 129417         | 10                 | 7               | 10             | 33708                | 86250                   | 55959                   |
+| medium2   | 15        | 13     | 12          | 122500         | 12                 | 9               | 12             | 28792                | 54417                   | 50917                   |
+| medium3   | 18        | 14     | 16          | 181959         | 16                 | 11              | 16             | 46667                | 84584                   | 60958                   |
+
+### Summary — Medium Dataset
+
+- Each medium graph contained **12–18 vertices** and **10–14 edges**.
+- Detected **10–16 SCCs**, confirming sparse but partially cyclic structures.
+- **Kosaraju’s algorithm** remained efficient, completing in under **0.2 ms** per graph.
+- **Condensation** produced reduced DAGs (7–11 edges), suitable for topological processing.
+- **Topological sorting** completed in ~30–45 µs, maintaining linear scaling.
+- **Shortest and longest path** computations both stayed below **0.1 ms**, confirming strong performance of DAG-based DP methods.
+- Overall, the medium dataset showed **stable, near-linear scaling** with minor variation due to SCC density.
+
+###  Medium Dataset — Detailed Metrics(json)
+
+| Graph   | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
+|----------|-----------|--------|------------|---------------------|----------------------|--------------------------|------------------------|------------|----------------|-----------------|
+| medium1 | 12        | 10     | 10         | 129,417             | 33,708               | 86,250                   | 55,959                 | [0 → 1]    | 3              | 2               | 1.5           |
+| medium2 | 15        | 13     | 12         | 122,500             | 28,792               | 54,417                   | 50,917                 | [7]        | 0              | 1               | 0.0           |
+| medium3 | 18        | 14     | 16         | 181,959             | 46,667               | 84,584                   | 60,958                 | [4]        | 0              | 1               | 0.0           |
+
+  **Notes:**
+- SCC counts grow with graph complexity, affecting initial Kosaraju runtime.
+- All processing phases remain under **0.2 ms**, confirming strong scalability.
+- Shortest and longest path distances are small due to limited connectivity.
+- The pipeline shows consistent linear scaling across medium-sized datasets.
+
+---
+
+### Large Dataset Results
+
+| Graph ID | Vertices | Edges | SCCs Detected | Kosaraju Time (ns) | Condensed DAG (V, E) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) |
+|-----------|-----------|--------|----------------|--------------------|----------------------|----------------------|--------------------------|--------------------------|
+| large1    | 25        | 19     | 20             | 192,291            | 18, 12               | 46,833               | 82,792                   | 108,666                  |
+| large2    | 35        | 23     | 32             | 262,875            | 31, 19               | 78,917               | 135,209                  | 105,750                  |
+| large3    | 45        | 26     | 42             | 284,333            | 41, 22               | 80,959               | 162,958                  | 142,667                  |
+
+### Large Dataset Summary
+
+- **Scale:** 25–45 vertices, 19–26 edges per graph.
+- **SCC Detection:** 20–42 strongly connected components found, showing increased graph density and cyclic structure.
+- **Kosaraju Performance:** Stable runtimes (≈190k–280k ns) despite growth, confirming near-linear scaling with `O(V + E)`.
+- **Condensation Phase:** Produced 18–41 vertices and 12–22 edges per DAG, maintaining low structural complexity post-compression.
+- **Topological Sorting:** Completed within 47k–81k ns. DFS-based approach remained efficient even at larger graph sizes.
+- **Path Computations:**
+    - Shortest Path: 82k–163k ns
+    - Longest Path: 105k–143k ns  
+      Both scale linearly and confirm consistent dynamic programming performance on acyclic graphs.
+- **Observation:** Dense connectivity increased SCC count but did not significantly affect DAG-based algorithms, which continued to perform efficiently after condensation.
+
+###  Large Dataset — Detailed Metrics(json)
+
+| Graph   | Vertices | Edges | SCC Count | Kosaraju Time (ns) | Topo Sort Time (ns) | Shortest Path Time (ns) | Longest Path Time (ns) | Best Path | Best Distance | Reachable Nodes | Avg Distance |
+|----------|-----------|--------|------------|---------------------|----------------------|--------------------------|------------------------|------------|----------------|-----------------|
+| large1  | 25        | 19     | 20         | 192,291             | 46,833               | 82,792                   | 108,666                | [0 → 1]    | 3              | 2               | 1.5           |
+| large2  | 35        | 23     | 32         | 262,875             | 78,917               | 135,209                  | 105,750                | [10]       | 0              | 1               | 0.0           |
+| large3  | 45        | 26     | 42         | 284,333             | 80,959               | 162,958                  | 142,667                | [4 → 5]    | 4              | 2               | 2.0           |
+
+  **Notes:**
+- SCC count increases sharply with graph size, indicating higher cyclic density.
+- Kosaraju and topological phases scale linearly in practice despite growing node counts.
+- Shortest and longest path computations remain under **0.2 ms**, confirming strong performance of DAG-based dynamic programming.
+- Best paths are short, confirming sparse effective connectivity even in large datasets.
+
+---
+
 ## 6.1 SCC + Condensation + Topological Sort
 
 | Dataset | SCC Count | Condensation Vertices | Condensation Edges | Kosaraju Time (ms) | Kahn Sort Time (ms) | DFS Sort Time (ms) |
